@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <title>Příklad použití modulu spaserver</title>
+    <script>
+        const HOST = window.location.protocol + "//" + window.location.hostname + ((window.location.port) ? ":" + window.location.port : "");
+
+        function ukazChybu(e) {
+            console.error('Error:', e.toString());
+            let s;
+            if (typeof e == "object") {
+                s = JSON.stringify(e);
+            } else {
+                s = e;
+            }
+            document.getElementById("div_chyby").innerHTML = `<input type="button" value="x" onclick="document.getElementById('div_chyby').style.display = 'none'"> ${s}`;
+            document.getElementById("div_chyby").style.display = 'block';
+        }
+
+        function ukazDen() {
+            let url = `${HOST}/denvtydnu`;
+            fetch(url).then(function (response) {
+                response.text().then(function (text) {
+                    let obj = JSON.parse(text);
+                    document.getElementById("den").innerHTML = obj.den.toLowerCase();
+                    document.getElementById("datum").innerHTML = obj.datum;
+                }).catch((error) => {
+                    ukazChybu(error);
+                });
+            });
+        }
+
+        function ukazCas() {
+            let url = `${HOST}/cas`;
+            fetch(url).then(function (response) {
+                response.text().then(function (text) {
+                    let obj = JSON.parse(text);
+                    document.getElementById("cas").innerHTML = obj.cas;
+                }).catch((error) => {
+                    ukazChybu(error);
+                });
+            });
+        }
+
+
+        function spustPoNacteni() {
+            ukazDen();
+            setInterval(zprava, 1000);
+            setInterval(ukazCas, 1000);
+
+
+        }
+
+        function zprava() {
+            let url = `${HOST}/chat/list`;
+            fetch(url).then(function (response) {
+                response.text().then(function (text) {
+                    let obj = JSON.parse(text);
+                    let s = "";
+                    for (let o of obj.messages) { //cyklus pres vsechny prvky vlastnosti messages
+                        s = s + o.time + " " + o.message + "<br>";
+                    }
+                    document.getElementById("zpravy").innerHTML = s;
+                });
+            });
+        }
+
+        function posliZpravu() {
+
+            let m = document.getElementById("zpravy");
+            let url = HOST+"/chat/add?msg="+m;
+          alert(url);//tohle je tu pouze abych věděla jesli mi stránka opravdu vkládá zprávu do "m"... nevkládá
+          fetch(url).then(function (response) {
+                response.text().then(function (text) {
+                    let obj = JSON.parse(text);
+            });
+                });
+
+        }
+    </script>
+</head>
+<body onload="spustPoNacteni()">
+<div id="div_chyby" style="color: white; background-color: red; display: none"></div>
+
+<h1>Nazev</h1>
+Dnes je <span id="den">...</span> <span id="datum">...</span>. Čas na serveru je <span id="cas">...</span>.
+<br><br>
+
+<input type=text; id="zprava"> <input type="button" value="send" onclick="posliZpravu()">
+
+<div id="zpravy">...</div>
+</body>
+</html>
