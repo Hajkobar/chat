@@ -1,6 +1,6 @@
 const dateFormat = require('dateformat');
 
-let msgs = new Array();
+let msgs = [];
 
 exports.apiChat = function (req, res, obj) {
     if (req.pathname.endsWith("/list")) {
@@ -10,8 +10,8 @@ exports.apiChat = function (req, res, obj) {
 
         obj.message = req.parameters.msg; //text zpravy z parametru msg
         obj.time = dateFormat(new Date(), "dd.mm.yyyy HH:MM:ss");
-
+        obj.nickname = req.parameters.nick;
         msgs.push(obj);
     }
 
-}
+};
